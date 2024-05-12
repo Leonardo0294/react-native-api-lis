@@ -1,14 +1,72 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, FlatList, Image } from 'react-native';
 
 const ProductListingScreen = () => {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('https://fakestoreapi.com/products');
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const renderItem = ({ item }) => (
+    <View style={styles.productItem}>
+      <Text style={styles.title}>{item.title}</Text>
+      <Text style={styles.price}>${item.price}</Text>
+      <Image source={{ uri: item.image }} style={styles.productImage} />
+    </View>
+  );
+
   return (
-    <View>
-      <Text>ProductListingScreen</Text>
+    <View style={styles.container}>
+      <FlatList
+        data={products}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ paddingVertical: 20 }}
+      />
     </View>
   );
 };
 
-export default ProductListingScreen;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  productItem: {
+    marginBottom: 20,
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: '#f9f9f9',
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  price: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'green',
+  },
+  productImage: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'cover',
+    borderRadius: 8,
+  },
+});
 
-const styles = StyleSheet.create({});
+export default ProductListingScreen;
